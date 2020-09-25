@@ -1,3 +1,5 @@
+package Clases;
+
 public class Reloj implements Runnable {
 
     private int horaActual;
