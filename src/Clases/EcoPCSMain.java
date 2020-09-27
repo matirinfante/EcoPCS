@@ -1,3 +1,5 @@
+package Clases;
+
 public class EcoPCSMain {
     public static void main(String[] args) {
         ParqueAcuatico parqueAcuatico = new ParqueAcuatico();
