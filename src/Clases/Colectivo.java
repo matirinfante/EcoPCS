@@ -7,19 +7,38 @@ public class Colectivo implements Runnable {
 
     int espacio;
     BufferColectivo buffer;
+    public final static int CANT_PASAJEROS_TOTAL = 25;
 
-    public Colectivo(BufferColectivo buffer) {
+    private int cantPasajerosActual, numeroColectivo;
+
+    public Colectivo(BufferColectivo buffer, int numeroColectivo) {
         this.buffer = buffer;
+        this.cantPasajerosActual = 0;
+        this.numeroColectivo = numeroColectivo;
+    }
+
+    public void setBuffer(BufferColectivo buffer) {
+        this.buffer = buffer;
+    }
+    public int getNumeroColectivo(){
+        return this.numeroColectivo;
+    }
+
+    public int getCantPasajerosActual() {
+        return this.cantPasajerosActual;
+    }
+
+    public void setCantPasajerosActual(int cant) {
+        this.cantPasajerosActual = cant;
     }
 
     @Override
     public void run() {
         try {
             while (true) {
-                System.out.println("LLEGUE A RECOGER GENTE");
-                this.buffer.esperandoArrancar();
+                this.buffer.esperandoArrancar(this);
                 Thread.sleep(2000);
-                this.buffer.esperandoVolver();
+                this.buffer.esperandoVolver(this);
                 Thread.sleep(2000);
             }
         } catch (InterruptedException ex) {

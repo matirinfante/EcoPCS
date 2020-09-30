@@ -53,12 +53,12 @@ public class Visitante implements Runnable {
                 System.out.println(this.getNombreVisitante() + " // Parque ECO-PCS cerrado *triste*");
             }
 
-            System.out.println(this.getNombreVisitante() + " // ¡Vamos al parque!");
+            //System.out.println(this.getNombreVisitante() + " // ¡Vamos al parque!");
 
             if (colectivo != null && vaColectivo) {
                 try {
-                    //colectivo.esperandoSubir(this);
 //System.out.println("ENTRO ACA");
+
                     colectivo.esperandoSubir(this);
                     colectivo.bajarVisitante(this);
                 } catch (InterruptedException ex) {
@@ -73,7 +73,7 @@ public class Visitante implements Runnable {
                 }
             }
 
-            System.out.println(this.getNombreVisitante() + " // ¡Estoy en el parque!");
+            //System.out.println(this.getNombreVisitante() + " // ¡Estoy en el parque!");
 
             parqueAcuatico.entrarAlParque(this);
             parqueAcuatico.seleccionActividad(this);
