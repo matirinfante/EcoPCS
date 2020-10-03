@@ -1,12 +1,5 @@
 package Clases;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -17,38 +10,35 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class BufferColectivo {
 
-    
-    private final static int CANT_PASAJEROS_TOTAL = 25;
-
     Lock aLock = new ReentrantLock();
-
     boolean llegoDestino,
             estaViajando,
             volver,
             viajar;
-    Condition colectivo = aLock.newCondition();
-    Condition enEspera = aLock.newCondition();
-    Condition bajando = aLock.newCondition();
-    private int cantActualPasajeros;
-    
+    private Condition colectivo = aLock.newCondition();
 
-    public BufferColectivo(int cantTotal) {
+    private Condition enEspera = aLock.newCondition();
+    private Condition bajando = aLock.newCondition();
+    private int cantidadActualPasajeros;
+
+    public BufferColectivo() {
         llegoDestino = false;
         estaViajando = false;
         volver = false;
         viajar = false;
-        cantActualPasajeros = 0;
+        cantidadActualPasajeros = 0;
     }
 
-    public void esperandoArrancar() {
+    public void esperandoArrancar(Colectivo objColectivo) {
         try {
             aLock.lock();
             volver = false;
-            
-            System.out.println("Esperando para arrancar el colectivo " + Thread.currentThread().getName());
-            if (!viajar || cantActualPasajeros < CANT_PASAJEROS_TOTAL) {
+
+            System.out.println("Esperando para arrancar el colectivo nro: " + objColectivo.getNumeroColectivo());
+            if (!viajar || objColectivo.getCantPasajerosActual() < Colectivo.CANT_PASAJEROS_TOTAL) {
                 colectivo.await();
             }
+
             estaViajando = true;
             System.out.println("Llendo al parque");
         } catch (InterruptedException e) {
@@ -58,7 +48,7 @@ public class BufferColectivo {
         }
     }
 
-    public void esperandoVolver() {
+    public void esperandoVolver(Colectivo objColectivo) {
         try {
             aLock.lock();
             llegoDestino = true;
@@ -66,8 +56,7 @@ public class BufferColectivo {
             if (!volver) {
                 colectivo.await();
             }
-            
-            System.out.println("Volviendo: " + Thread.currentThread().getName());
+            System.out.println("Volviendo colectivo: " + objColectivo.getNumeroColectivo());
         } catch (InterruptedException e) {
             System.out.println("ERROR ESPERANDO PARA VOLVER(? : " + e.getMessage());
         } finally {
@@ -80,35 +69,38 @@ public class BufferColectivo {
     public void esperandoSubir(Visitante visitante) throws InterruptedException {
         try {
             aLock.lock();
-            if ((cantActualPasajeros == CANT_PASAJEROS_TOTAL) || estaViajando) {
+
+            if ((cantidadActualPasajeros == Colectivo.CANT_PASAJEROS_TOTAL) || estaViajando) {
                 enEspera.await();
             }
 
             System.out.println("Ingreso la Persona " + visitante.getNombreVisitante());
-            cantActualPasajeros++;
-            if (cantActualPasajeros == CANT_PASAJEROS_TOTAL) {
+            cantidadActualPasajeros++;
+            if (cantidadActualPasajeros == Colectivo.CANT_PASAJEROS_TOTAL) {
                 viajar = true;
                 llegoDestino = false;
                 colectivo.signal();
             }
-
         } catch (InterruptedException e) {
             System.out.println("ERROR ESPERANDO SUBIR: " + e.getMessage());
         } finally {
             aLock.unlock();
         }
+
     }
 
     public void bajarVisitante(Visitante visitante) {
         try {
             aLock.lock();
-            if(!llegoDestino){
+            if (!llegoDestino) {
                 bajando.await();
             }
             System.out.println("Visitante " + visitante.getNombreVisitante() + " descendió");
-            cantActualPasajeros--;
-            System.out.println("Cantidad de pasajeros restantes: " + cantActualPasajeros);
-            if (cantActualPasajeros == 0) {
+
+            cantidadActualPasajeros--;
+
+            System.out.println("Cantidad de pasajeros restantes: " + cantidadActualPasajeros);
+            if (cantidadActualPasajeros == 0) {
                 volver = true;
                 colectivo.signal();
             }
